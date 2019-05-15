@@ -1,0 +1,3 @@
+colorwheel =
+
+def color(idx):

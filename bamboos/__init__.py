@@ -1,8 +1,5 @@
 """An amazing sample package!"""
 
-__version__ = '0.1'
+__version__ = "0.1.1"
 
-
-def joke():
-    return (u'Wenn ist das Nunst\u00fcck git und Slotermeyer? Ja! ... '
-            u'Beiherhund das Oder die Flipperwaldt gersput.')
+from bamboos.date import date_single, date_double
