@@ -22,4 +22,4 @@ def get_venn(array_a, array_b, name_a, name_b):
 
 def get_quantile(array, intervals=0.01):
     for interval in np.arange(intervals, 1 + intervals, intervals):
-        print('Quantile {:.3f} : {}'.format(interval, array.quantile(interval)))
+        print("Quantile {:.3f} : {}".format(interval, array.quantile(interval)))
