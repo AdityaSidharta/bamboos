@@ -18,4 +18,5 @@ requires = ["numpy",
             "matplotlib",
             "seaborn",
             "lightgbm",
-            "seaborn"]
+            "seaborn",
+            "category_encoders>=2.0.0"]
