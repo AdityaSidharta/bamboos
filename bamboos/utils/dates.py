@@ -1,3 +1,5 @@
+import datetime
+
 DAYS_IN_MONTH = 30.41
 DAYS_IN_YEAR = 365.25
 MONTH_IN_YEAR = 12.
@@ -14,3 +16,7 @@ NIGHT_START = 18
 NIGHT_END = 24
 SATURDAY = 5
 SUNDAY = 6
+
+
+def get_datetime():
+    return datetime.datetime.now().strftime("%Y%m%d-%H%M%S")

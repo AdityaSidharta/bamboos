@@ -19,4 +19,5 @@ requires = ["numpy",
             "seaborn",
             "lightgbm",
             "seaborn",
-            "category_encoders>=2.0.0"]
+            "category_encoders>=2.0.0",
+            "matplotlib-venn"]

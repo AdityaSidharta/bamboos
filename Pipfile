@@ -13,6 +13,7 @@ lightgbm = "*"
 xgboost = "*"
 flit = "*"
 category-encoders = ">=2.0.0"
+matplotlib-venn = "*"
 
 [dev-packages]
 

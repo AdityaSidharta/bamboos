@@ -1,6 +1,7 @@
-"""An amazing sample package!"""
+"""Wrapper Functions for pandas, numpy, and scikit learn"""
 
 __version__ = "0.1.3"
+__author__ = "adityasidharta"
 
 from bamboos.date import date_single, date_double
 from bamboos.encode import (
@@ -13,3 +14,4 @@ from bamboos.encode import (
     transform_label,
     transform_onehot,
 )
+from bamboos.color import color

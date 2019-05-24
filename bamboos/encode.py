@@ -1,6 +1,10 @@
+from typing import Any, Dict, List, Tuple
+
 import numpy as np
 import pandas as pd
 from category_encoders import OrdinalEncoder, OneHotEncoder, BinaryEncoder
+
+from bamboos.utils.dataframe import insert_df
 
 
 def fit_label(input_df, cols, na_value=None):
@@ -19,6 +23,7 @@ def fit_label(input_df, cols, na_value=None):
 
     for col in cols:
         result_df[col] = result_df[col].replace({-1: 0, -2: 0})
+        result_df[col] = result_df[col].astype(int)
 
     model = {"encoder": encoder, "cols": cols, "na_value": na_value}
     return result_df, model
@@ -39,6 +44,8 @@ def transform_label(input_df, model):
 
     for col in cols:
         result_df[col] = result_df[col].replace({-1: 0, -2: 0})
+        result_df[col] = result_df[col].astype(int)
+
     return result_df
 
 
@@ -176,4 +183,73 @@ def transform_categorical(input_df, model):
     df = transform_label(df, label_model)
     result_df = transform_binary(df, binary_model)
 
+    return result_df
+
+
+def fit_stats(
+    input_df: pd.DataFrame, stat_cols: List[str], target_cols: List[str], metric_cols: Any = None
+) -> Tuple[pd.DataFrame, Dict[str, Dict[str, pd.DataFrame]]]:
+    for col_name in ["stat_cols", "target_cols", "metric_cols", "default"]:
+        assert col_name not in stat_cols, "Please don't use {} as a Stats column name".format(col_name)
+        assert col_name not in target_cols, "Please don't use {} as a Target column name".format(col_name)
+    df = input_df.copy()
+
+    df = df[stat_cols + target_cols]
+    if not metric_cols:
+        metric_cols = ["mean", "median", "std", "min", "max"]
+    if isinstance(metric_cols, dict):
+        assert set(stat_cols) == set(metric_cols)
+
+    stats_encoder = dict()  # type: dict
+    for stat_col in stat_cols:
+        stats_encoder[stat_col] = dict()
+        if isinstance(metric_cols, dict):
+            stat_metric_cols = metric_cols[stat_col]
+        else:
+            stat_metric_cols = metric_cols
+        for target_col in target_cols:
+            agg_df = df.groupby(stat_col)[target_col].agg(stat_metric_cols).reset_index()
+
+            default_df = pd.DataFrame([df[target_col].agg(stat_metric_cols)]).reset_index(drop=True)
+            default_df[stat_col] = "default"
+            default_df = default_df[[stat_col] + stat_metric_cols]
+
+            full_agg_df = agg_df.append(default_df)
+
+            stat_colname = ["{}_{}_{}".format(stat_col, target_col, metrics_col) for metrics_col in stat_metric_cols]
+            full_agg_df.columns = [stat_col] + stat_colname
+            stats_encoder[stat_col][target_col] = full_agg_df
+
+    stats_encoder["stat_cols"] = stat_cols
+    stats_encoder["target_cols"] = target_cols
+    stats_encoder["metric_cols"] = metric_cols
+
+    result_df = transform_stats(input_df, stats_encoder)
+    return result_df, stats_encoder
+
+
+def transform_stats(input_df: pd.DataFrame, stats_encoder_dict: Dict[str, Any]) -> pd.DataFrame:
+    stat_cols = stats_encoder_dict["stat_cols"]
+    target_cols = stats_encoder_dict["target_cols"]
+    metric_cols = stats_encoder_dict["metric_cols"]
+    result_df = input_df.copy()
+
+    # pylint: disable=cell-var-from-loop
+    for stat_col in stat_cols:
+        if isinstance(metric_cols, dict):
+            stat_metric_cols = metric_cols[stat_col]
+        else:
+            stat_metric_cols = metric_cols
+        for target_col in target_cols[::-1]:
+            stat_col_idx = result_df.columns.get_loc(stat_col) + 1
+            stat_colname = ["{}_{}_{}".format(stat_col, target_col, metrics_col) for metrics_col in stat_metric_cols]
+
+            small_df = result_df[[stat_col]].copy()
+            small_df[stat_col] = small_df[stat_col].apply(
+                lambda x: "default" if x not in stats_encoder_dict[stat_col][target_col][stat_col].tolist() else x
+            )
+            agg_df = small_df.merge(stats_encoder_dict[stat_col][target_col], how="left", on=stat_col, validate="m:1")[
+                stat_colname
+            ]
+            result_df = insert_df(result_df, agg_df, stat_col_idx)
     return result_df

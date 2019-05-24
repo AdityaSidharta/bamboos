@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ec8e1b3db5e09c3f21100e76b4c7a5f1e932228a8cd7bd4fb8d842b8cdd6920c"
+            "sha256": "dfd379dfef7f2b9180a69b2b158b0ccedfdded53baf16071248e98cb0bb58c67"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -133,6 +133,13 @@
             "index": "pypi",
             "version": "==3.1.0"
         },
+        "matplotlib-venn": {
+            "hashes": [
+                "sha256:be017a6821bce410db3314099649f1a0fcf4c0fbf7be0c1190b102187988838f"
+            ],
+            "index": "pypi",
+            "version": "==0.11.5"
+        },
         "numpy": {
             "hashes": [
                 "sha256:0e2eed77804b2a6a88741f8fcac02c5499bba3953ec9c71e8b217fad4912c56c",
@@ -236,6 +243,7 @@
                 "sha256:185d88ee4955cd68d7ff57356d1dd99cfc2de4b6aa5e5d679cafbc9df54716ff",
                 "sha256:195465c39daded4f3ef8759291ffde81365486d4293e63dd9e32de0f569ecbbf",
                 "sha256:4a6398500d035a4402476a2e3ae9f65a7a3f1b366ec6a7f6dd45c289f72dc954",
+                "sha256:56f14e98632fb9237e7d005c6d8e346d01fa67f7b92f5f5d57a0bd06c741f9f6",
                 "sha256:77092513dd780e12affde46a6394b52947db3fc00cf1d8c1c8eede52b37591d1",
                 "sha256:7d2cdfe16b1ae6f9a1760b69be27c2004a84fc362984f930df135c847c47b765",
                 "sha256:82c3450fc375f27e3529fa05fec627c9fc75915e05fcd55de43f193b3aa907af",

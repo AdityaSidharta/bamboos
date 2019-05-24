@@ -15,16 +15,24 @@ def locate_col(df: pd.DataFrame, col_name: str):
     return idx
 
 
-def insert_df(outer_df: pd.DataFrame, inner_df: pd.DataFrame, loc: int):
+def insert_df(input_outer_df: pd.DataFrame, input_inner_df: pd.DataFrame, loc: int):
     """
-    Insert `inner_df` into `outer_df` at specified index, `loc`.
+    Insert `input_inner_df` into `input_outer_df_df` at specified index, `loc`.
 
     Args:
-        outer_df (pd.DataFrame): DataFrame which will be inserted by another DataFrame
-        inner_df (pd.DataFrame): DataFrame to be inserted
+        input_outer_df (pd.DataFrame): DataFrame which will be inserted by another DataFrame
+        input_inner_df (pd.DataFrame): DataFrame to be inserted
         loc (int): location index of insertion
 
     Returns:
         (pd.DataFrame), `outer_df` with `inner_df` inserted in between according to the specified index
     """
-    return pd.concat([outer_df.iloc[:, :loc], inner_df, outer_df.iloc[:, loc:]], axis=1)
+    assert isinstance(input_outer_df, pd.DataFrame)
+    assert isinstance(input_inner_df, pd.DataFrame)
+    outer_df = input_outer_df.copy()
+    inner_df = input_inner_df.copy()
+    outer_df = outer_df.reset_index(drop=True)
+    inner_df = inner_df.reset_index(drop=True)
+    if len(outer_df) != len(inner_df):
+        raise ValueError("len is not the same")
+    return pd.concat([outer_df.iloc[:, :loc], inner_df, outer_df.iloc[:, loc:]], axis=1, join_axes=[outer_df.index])
