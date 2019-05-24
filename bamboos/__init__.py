@@ -1,6 +1,6 @@
 """Wrapper Functions for pandas, numpy, and scikit learn"""
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 __author__ = "adityasidharta"
 
 from bamboos.date import date_single, date_double
