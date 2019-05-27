@@ -6,7 +6,7 @@ build-backend = "flit.buildapi"
 module = "bamboos"
 author = "Aditya Kelvianto Sidharta"
 author-email = "aditya.sdrt@gmail.com"
-home-page = "http://adityasidharta.com"
+home-page = "http://github.com/AdityaSidharta/bamboos"
 classifiers = [
                 "License :: OSI Approved :: MIT License",
                 "Development Status :: 1 - Planning",
