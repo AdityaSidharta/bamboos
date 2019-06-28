@@ -11,11 +11,14 @@ matplotlib = "*"
 seaborn = "*"
 lightgbm = "*"
 xgboost = "*"
-flit = "*"
 category-encoders = ">=2.0.0"
 matplotlib-venn = "*"
+hyperopt = "*"
 
 [dev-packages]
+black = "==19.3b0"
+pylint = "*"
+flit = "*"
 
 [requires]
 python_version = "3.7"

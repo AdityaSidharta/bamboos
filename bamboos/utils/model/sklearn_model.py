@@ -1,7 +1,8 @@
+import warnings
+
 from sklearn.base import BaseEstimator
 
 from bamboos.utils.model.base_model import Model
-from catalyst.utils.logger import logger
 
 
 class SkLearnModel(Model):
@@ -30,13 +31,13 @@ class SkLearnModel(Model):
     def predict_proba(self, X_test):
         if self.pred_type == "binary":
             if not hasattr(self.model, "predict_proba"):
-                logger.info("Model {} does not have attribute predict_proba. Returning None".format(self.name))
+                warnings.warn("Model {} does not have attribute predict_proba. Returning None".format(self.name))
                 result = None
             else:
                 result = self.model.predict_proba(X_test)[:, 1]
         elif self.pred_type == "multiclass":
             if not hasattr(self.model, "predict_proba"):
-                logger.info("Model {} does not have attribute predict_proba. Returning None".format(self.name))
+                warnings.warn("Model {} does not have attribute predict_proba. Returning None".format(self.name))
                 result = None
             else:
                 result = self.model.predict_proba(X_test)
