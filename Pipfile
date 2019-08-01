@@ -16,9 +16,13 @@ matplotlib-venn = "*"
 hyperopt = "*"
 
 [dev-packages]
-black = "==19.3b0"
 pylint = "*"
+bump2version = "*"
+black = "==19.3b0"
 flit = "*"
+pytest = "*"
+mkdocs = "*"
+pdoc3 = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.7.2"

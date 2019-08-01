@@ -3,18 +3,27 @@ SHELL := /bin/bash
 help:
 	@echo "init - initialize the project"
 	@echo "test - setup pyenv and pipenv"
-	@echo "publish - setup pyenv and pipenv"
-	@echo "bumpmajor - bump major version"
-	@echo "bumpminor - bump minor version"
-	@echo "bumppatch - bump patch version"
+	@echo "publishmajor - publish major version"
+	@echo "publisminor - publish minor version"
+	@echo "publishpatch - publish patch version"
 
-
-setup:
-	bash bin/setup.sh
+init:
+	bash bin/init.sh
 	pipenv shell
 
-pylint:
-	pylint src --reports=y
+.PHONY: test
+test:
+	bash bin/test.sh
+	pylint {{cookiecutter.package_name}} --reports=y
 
-run: pylint
-	bash bin/run.sh
+publishmajor:
+	bash bin/publishmajor.sh
+
+publishminor:
+	bash bin/publishminor.sh
+
+publishpatch:
+	bash bin/publishpatch.sh
+
+docs:
+	bash bin/docs.sh
