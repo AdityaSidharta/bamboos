@@ -6,7 +6,14 @@ from bamboos.utils.model.base_model import Model
 
 
 class SkLearnModel(Model):
-    def __init__(self, name: str, model: BaseEstimator, pred_type: str, threshold: float = 0.5, **kwargs) -> None:
+    def __init__(
+        self,
+        name: str,
+        model: BaseEstimator,
+        pred_type: str,
+        threshold: float = 0.5,
+        **kwargs
+    ) -> None:
         super().__init__(name, model, pred_type, threshold)
         self.kwargs = kwargs
         if self.pred_type == "multiclass":
@@ -31,16 +38,26 @@ class SkLearnModel(Model):
     def predict_proba(self, X_test):
         if self.pred_type == "binary":
             if not hasattr(self.model, "predict_proba"):
-                warnings.warn("Model {} does not have attribute predict_proba. Returning None".format(self.name))
+                warnings.warn(
+                    "Model {} does not have attribute predict_proba. Returning None".format(
+                        self.name
+                    )
+                )
                 result = None
             else:
                 result = self.model.predict_proba(X_test)[:, 1]
         elif self.pred_type == "multiclass":
             if not hasattr(self.model, "predict_proba"):
-                warnings.warn("Model {} does not have attribute predict_proba. Returning None".format(self.name))
+                warnings.warn(
+                    "Model {} does not have attribute predict_proba. Returning None".format(
+                        self.name
+                    )
+                )
                 result = None
             else:
                 result = self.model.predict_proba(X_test)
         else:
-            raise ValueError("pred_type should be on of the following: ['binary', 'multiclass']")
+            raise ValueError(
+                "pred_type should be on of the following: ['binary', 'multiclass']"
+            )
         return result

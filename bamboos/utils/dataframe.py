@@ -35,4 +35,8 @@ def insert_df(input_outer_df: pd.DataFrame, input_inner_df: pd.DataFrame, loc: i
     inner_df = inner_df.reset_index(drop=True)
     if len(outer_df) != len(inner_df):
         raise ValueError("len is not the same")
-    return pd.concat([outer_df.iloc[:, :loc], inner_df, outer_df.iloc[:, loc:]], axis=1, join_axes=[outer_df.index])
+    return pd.concat(
+        [outer_df.iloc[:, :loc], inner_df, outer_df.iloc[:, loc:]],
+        axis=1,
+        join_axes=[outer_df.index],
+    )

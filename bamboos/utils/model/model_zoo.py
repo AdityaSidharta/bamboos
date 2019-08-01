@@ -12,7 +12,14 @@ from sklearn.ensemble import (
     RandomForestClassifier,
     RandomForestRegressor,
 )
-from sklearn.linear_model import ElasticNet, Lasso, LinearRegression, LogisticRegression, Ridge, RidgeClassifier
+from sklearn.linear_model import (
+    ElasticNet,
+    Lasso,
+    LinearRegression,
+    LogisticRegression,
+    Ridge,
+    RidgeClassifier,
+)
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.neural_network import MLPClassifier, MLPRegressor
@@ -78,7 +85,9 @@ def createModel(model_name: str, model_type: str, num_class: int = None, **kwarg
     else:
         estimator = get_estimator(model_name)
         if num_class:
-            model = SkLearnModel(model_name, estimator(**kwargs), model_type, num_class=num_class)
+            model = SkLearnModel(
+                model_name, estimator(**kwargs), model_type, num_class=num_class
+            )
         else:
             model = SkLearnModel(model_name, estimator(**kwargs), model_type)
     return model
@@ -100,9 +109,15 @@ def regression_model_dict() -> dict:
         "DecisionTreeRegressor": createModel("DecisionTreeRegressor", "regression"),
         "AdaBoostRegressor": createModel("AdaBoostRegressor", "regression"),
         "BaggingRegressor": createModel("BaggingRegressor", "regression"),
-        "ExtraTreesRegressor": createModel("ExtraTreesRegressor", "regression", n_estimators=100),
-        "GradientBoostingRegressor": createModel("GradientBoostingRegressor", "regression"),
-        "RandomForestRegressor": createModel("RandomForestRegressor", "regression", n_estimators=100),
+        "ExtraTreesRegressor": createModel(
+            "ExtraTreesRegressor", "regression", n_estimators=100
+        ),
+        "GradientBoostingRegressor": createModel(
+            "GradientBoostingRegressor", "regression"
+        ),
+        "RandomForestRegressor": createModel(
+            "RandomForestRegressor", "regression", n_estimators=100
+        ),
         "XGBoost": createModel("XGBoostRegressor", "regression", num_boost_round=100),
         "LightGBM": createModel("LightGBMRegressor", "regression", num_boost_round=100),
     }
@@ -116,16 +131,23 @@ def binary_model_dict() -> dict:
         Dictionary containing all sklearn, xgboost, and light gbm models for binary dataset
     """
     return {
-        "LogisticRegression": createModel("LogisticRegression", "binary", solver="lbfgs", max_iter=1000),
-        "RidgeClassifier": createModel("RidgeClassifier", "binary"),
+        "LogisticRegression": createModel(
+            "LogisticRegression", "binary", solver="lbfgs", max_iter=1000
+        ),
         "GaussianNB": createModel("GaussianNB", "binary"),
         "KNeighborsClassifier": createModel("KNeighborsClassifier", "binary"),
         "DecisionTreeClassifier": createModel("DecisionTreeClassifier", "binary"),
         "AdaBoostClassifier": createModel("AdaBoostClassifier", "binary"),
         "BaggingClassifier": createModel("BaggingClassifier", "binary"),
-        "ExtraTreesClassifier": createModel("ExtraTreesClassifier", "binary", n_estimators=100),
-        "GradientBoostingClassifier": createModel("GradientBoostingClassifier", "binary"),
-        "RandomForestClassifier": createModel("RandomForestClassifier", "binary", n_estimators=100),
+        "ExtraTreesClassifier": createModel(
+            "ExtraTreesClassifier", "binary", n_estimators=100
+        ),
+        "GradientBoostingClassifier": createModel(
+            "GradientBoostingClassifier", "binary"
+        ),
+        "RandomForestClassifier": createModel(
+            "RandomForestClassifier", "binary", n_estimators=100
+        ),
         "XGBoost": createModel("XGBoostBinary", "binary", num_boost_round=100),
         "LightGBM": createModel("LightGBMBinary", "binary", num_boost_round=100),
     }
@@ -150,16 +172,29 @@ def multiclass_model_dict(num_class: int) -> dict:
             solver="lbfgs",
             max_iter=1000,
         ),
-        "RidgeClassifier": createModel("RidgeClassifier", "multiclass", num_class=num_class),
+        "RidgeClassifier": createModel(
+            "RidgeClassifier", "multiclass", num_class=num_class
+        ),
         "GaussianNB": createModel("GaussianNB", "multiclass", num_class=num_class),
-        "KNeighborsClassifier": createModel("KNeighborsClassifier", "multiclass", num_class=num_class),
-        "DecisionTreeClassifier": createModel("DecisionTreeClassifier", "multiclass", num_class=num_class),
+        "KNeighborsClassifier": createModel(
+            "KNeighborsClassifier", "multiclass", num_class=num_class
+        ),
+        "DecisionTreeClassifier": createModel(
+            "DecisionTreeClassifier", "multiclass", num_class=num_class
+        ),
         "ExtraTreesClassifier": createModel(
             "ExtraTreesClassifier", "multiclass", num_class=num_class, n_estimators=100
         ),
         "RandomForestClassifier": createModel(
-            "RandomForestClassifier", "multiclass", num_class=num_class, n_estimators=100
+            "RandomForestClassifier",
+            "multiclass",
+            num_class=num_class,
+            n_estimators=100,
         ),
-        "XGBoost": createModel("XGBoostBinary", "multiclass", num_class=num_class, num_boost_round=100),
-        "LightGBM": createModel("LightGBMBinary", "multiclass", num_class=num_class, num_boost_round=100),
+        "XGBoost": createModel(
+            "XGBoostBinary", "multiclass", num_class=num_class, num_boost_round=100
+        ),
+        "LightGBM": createModel(
+            "LightGBMBinary", "multiclass", num_class=num_class, num_boost_round=100
+        ),
     }

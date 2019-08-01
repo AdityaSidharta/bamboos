@@ -31,7 +31,9 @@ def _get_max_day(row: pd.Series, col_name: str):
     """
     if (pd.isnull(row[col_name + "_year"])) or (pd.isnull(row[col_name + "_year"])):
         return np.nan
-    return calendar.monthrange(int(row[col_name + "_year"]), int(row[col_name + "_month"]))[1]
+    return calendar.monthrange(
+        int(row[col_name + "_year"]), int(row[col_name + "_month"])
+    )[1]
 
 
 def _get_cyclical_sin(df: pd.Series, col_name: str, col_type: str, col_max: Any):
@@ -48,7 +50,9 @@ def _get_cyclical_cos(df: pd.Series, col_name: str, col_type: str, col_max: Any)
     return np.cos(2. * np.pi * df["{}_{}".format(col_name, col_type)] / col_max)
 
 
-def date_single(input_df: pd.DataFrame, col_name: str, cur_time: dt.datetime = dt.datetime.now()):
+def date_single(
+    input_df: pd.DataFrame, col_name: str, cur_time: dt.datetime = dt.datetime.now()
+):
     """
     Perform Feature Engineering on a single datetime column.
     """
@@ -70,16 +74,32 @@ def date_single(input_df: pd.DataFrame, col_name: str, cur_time: dt.datetime = d
     df[col_name + "_year_elapsed"] = (cur_time - df[col_name]).dt.days / DAYS_IN_YEAR
     df[col_name + "_month_elapsed"] = (cur_time - df[col_name]).dt.days / DAYS_IN_MONTH
     df[col_name + "_day_elapsed"] = (cur_time - df[col_name]).dt.days
-    df[col_name + "_month_sin"] = _get_cyclical_sin(df, col_name, "month", MONTH_IN_YEAR)
-    df[col_name + "_month_cos"] = _get_cyclical_cos(df, col_name, "month", MONTH_IN_YEAR)
-    df[col_name + "_day_sin"] = _get_cyclical_sin(df, col_name, "day", df[col_name + "_max_day"])
-    df[col_name + "_day_cos"] = _get_cyclical_cos(df, col_name, "day", df[col_name + "_max_day"])
+    df[col_name + "_month_sin"] = _get_cyclical_sin(
+        df, col_name, "month", MONTH_IN_YEAR
+    )
+    df[col_name + "_month_cos"] = _get_cyclical_cos(
+        df, col_name, "month", MONTH_IN_YEAR
+    )
+    df[col_name + "_day_sin"] = _get_cyclical_sin(
+        df, col_name, "day", df[col_name + "_max_day"]
+    )
+    df[col_name + "_day_cos"] = _get_cyclical_cos(
+        df, col_name, "day", df[col_name + "_max_day"]
+    )
     df[col_name + "_hour_sin"] = _get_cyclical_sin(df, col_name, "hour", HOUR_IN_DAY)
     df[col_name + "_hour_cos"] = _get_cyclical_cos(df, col_name, "hour", HOUR_IN_DAY)
-    df[col_name + "_minute_sin"] = _get_cyclical_sin(df, col_name, "minute", MINUTE_IN_HOUR)
-    df[col_name + "_minute_cos"] = _get_cyclical_cos(df, col_name, "minute", MINUTE_IN_HOUR)
-    df[col_name + "_second_sin"] = _get_cyclical_sin(df, col_name, "second", SECOND_IN_MINUTE)
-    df[col_name + "_second_cos"] = _get_cyclical_cos(df, col_name, "second", SECOND_IN_MINUTE)
+    df[col_name + "_minute_sin"] = _get_cyclical_sin(
+        df, col_name, "minute", MINUTE_IN_HOUR
+    )
+    df[col_name + "_minute_cos"] = _get_cyclical_cos(
+        df, col_name, "minute", MINUTE_IN_HOUR
+    )
+    df[col_name + "_second_sin"] = _get_cyclical_sin(
+        df, col_name, "second", SECOND_IN_MINUTE
+    )
+    df[col_name + "_second_cos"] = _get_cyclical_cos(
+        df, col_name, "second", SECOND_IN_MINUTE
+    )
     df[col_name + "_is_year_start"] = df[col_name].dt.is_year_start
     df[col_name + "_is_year_end"] = df[col_name].dt.is_year_end
     df[col_name + "_is_quarter_start"] = df[col_name].dt.is_quarter_start
@@ -105,10 +125,20 @@ def date_double(input_df: pd.DataFrame, begin_col: str, end_col: str):
     df = input_df[[begin_col, end_col]].copy()
     df[begin_col] = pd.to_datetime(df[begin_col])
     df[end_col] = pd.to_datetime(df[end_col])
-    df["{}_{}_year".format(begin_col, end_col)] = (df[end_col] - df[begin_col]).dt.days / DAYS_IN_YEAR
-    df["{}_{}_month".format(begin_col, end_col)] = (df[end_col] - df[begin_col]).dt.days / DAYS_IN_MONTH
+    df["{}_{}_year".format(begin_col, end_col)] = (
+        df[end_col] - df[begin_col]
+    ).dt.days / DAYS_IN_YEAR
+    df["{}_{}_month".format(begin_col, end_col)] = (
+        df[end_col] - df[begin_col]
+    ).dt.days / DAYS_IN_MONTH
     df["{}_{}_days".format(begin_col, end_col)] = (df[end_col] - df[begin_col]).dt.days
-    df["{}_{}_hour".format(begin_col, end_col)] = (df[end_col] - df[begin_col]).dt.seconds / SECOND_IN_HOUR
-    df["{}_{}_minute".format(begin_col, end_col)] = (df[end_col] - df[begin_col]).dt.seconds / SECOND_IN_MINUTE
-    df["{}_{}_second".format(begin_col, end_col)] = (df[end_col] - df[begin_col]).dt.seconds
+    df["{}_{}_hour".format(begin_col, end_col)] = (
+        df[end_col] - df[begin_col]
+    ).dt.seconds / SECOND_IN_HOUR
+    df["{}_{}_minute".format(begin_col, end_col)] = (
+        df[end_col] - df[begin_col]
+    ).dt.seconds / SECOND_IN_MINUTE
+    df["{}_{}_second".format(begin_col, end_col)] = (
+        df[end_col] - df[begin_col]
+    ).dt.seconds
     return df.drop(columns=[begin_col, end_col])

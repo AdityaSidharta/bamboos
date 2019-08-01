@@ -36,12 +36,12 @@ class Model:
         else:
             assert self.pred_type == "multiclass"
             if isinstance(y_val, np.ndarray):
-                y_val_ohe = OneHotEncoder(categories=[range(self.num_class)], sparse=False).fit_transform(
-                    y_val.reshape(-1, 1)
-                )
+                y_val_ohe = OneHotEncoder(
+                    categories=[range(self.num_class)], sparse=False
+                ).fit_transform(y_val.reshape(-1, 1))
             else:
-                y_val_ohe = OneHotEncoder(categories=[range(self.num_class)], sparse=False).fit_transform(
-                    y_val.values.reshape(-1, 1)
-                )
+                y_val_ohe = OneHotEncoder(
+                    categories=[range(self.num_class)], sparse=False
+                ).fit_transform(y_val.values.reshape(-1, 1))
             result = metric(y_val_ohe, y_score, **kwargs)
         return result

@@ -5,7 +5,9 @@ from bamboos.utils.model.base_model import Model
 
 
 class XGBoostModel(Model):
-    def __init__(self, name: str, pred_type: str, threshold: float = 0.5, **kwargs) -> None:
+    def __init__(
+        self, name: str, pred_type: str, threshold: float = 0.5, **kwargs
+    ) -> None:
         super().__init__(name, None, pred_type, threshold)
         self.kwargs = kwargs
         if self.pred_type == "multiclass":
@@ -28,7 +30,9 @@ class XGBoostModel(Model):
             params[key] = value
 
         if "num_boost_round" in self.kwargs.keys():
-            self.model = xgb.train(params, dtrain, self.kwargs.get("num_boost_round"), verbose_eval=False)
+            self.model = xgb.train(
+                params, dtrain, self.kwargs.get("num_boost_round"), verbose_eval=False
+            )
         else:
             self.model = xgb.train(params, dtrain, verbose_eval=False)
 
@@ -53,5 +57,7 @@ class XGBoostModel(Model):
         if self.pred_type in ["binary", "multiclass"]:
             result = self.model.predict(dtest)
         else:
-            raise ValueError("pred_type should be on of the following: ['binary', 'multiclass']")
+            raise ValueError(
+                "pred_type should be on of the following: ['binary', 'multiclass']"
+            )
         return result

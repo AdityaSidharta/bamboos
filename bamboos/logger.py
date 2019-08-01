@@ -21,7 +21,9 @@ class Logger:
         self.logger = logging.getLogger(name)
         self.logger.setLevel(level)
         self.ch = self.get_stream_handler()
-        self.fh = self.get_file_handler(os.path.join(logger_path, "{}_{}.log".format(self.name, self.datetime)))
+        self.fh = self.get_file_handler(
+            os.path.join(logger_path, "{}_{}.log".format(self.name, self.datetime))
+        )
         self.logger.addHandler(self.ch)
         self.logger.addHandler(self.fh)
         self.is_setup = True

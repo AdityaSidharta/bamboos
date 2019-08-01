@@ -1,3 +1,5 @@
+import random
+
 color_wheel = [
     "#e6194B",
     "#3cb44b",
@@ -24,5 +26,9 @@ color_wheel = [
 ]
 
 
-def color(idx):
-    return color_wheel[idx % (len(color_wheel) - 1)]
+def color(idx=None):
+    if idx is not None:
+        n_color_wheel = len(color_wheel)
+        return color_wheel[random.choice(range(n_color_wheel))]
+    else:
+        return color_wheel[idx % (len(color_wheel) - 1)]

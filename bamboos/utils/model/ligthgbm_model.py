@@ -5,7 +5,9 @@ from bamboos.utils.model.base_model import Model
 
 
 class LGBModel(Model):
-    def __init__(self, name: str, pred_type: str, threshold: float = 0.5, **kwargs) -> None:
+    def __init__(
+        self, name: str, pred_type: str, threshold: float = 0.5, **kwargs
+    ) -> None:
         super().__init__(name, None, pred_type, threshold)
         self.kwargs = kwargs
         if self.pred_type == "multiclass":
@@ -23,14 +25,18 @@ class LGBModel(Model):
         elif self.pred_type == "regression":
             params = {"task": "train", "objective": "regression", "verbosity": -1}
         else:
-            raise ValueError("pred_type should be one of the following: ['binary', 'multiclass', 'regression']")
+            raise ValueError(
+                "pred_type should be one of the following: ['binary', 'multiclass', 'regression']"
+            )
 
         for key, value in self.kwargs.items():
             if key != "num_boost_round":
                 params[key] = value
 
         if "num_boost_round" in self.kwargs.keys():
-            self.model = lgb.train(params, lgb_train, self.kwargs.get("num_boost_round"))
+            self.model = lgb.train(
+                params, lgb_train, self.kwargs.get("num_boost_round")
+            )
         else:
             self.model = lgb.train(params, lgb_train)
 
@@ -48,5 +54,7 @@ class LGBModel(Model):
         if self.pred_type in ["binary", "multiclass"]:
             result = self.model.predict(X_test)
         else:
-            raise ValueError("pred_type should be on of the following: ['binary', 'multiclass']")
+            raise ValueError(
+                "pred_type should be on of the following: ['binary', 'multiclass']"
+            )
         return result

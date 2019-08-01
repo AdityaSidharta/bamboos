@@ -14,7 +14,7 @@ init:
 .PHONY: test
 test:
 	bash bin/test.sh
-	pylint {{cookiecutter.package_name}} --reports=y
+	pylint bamboos --reports=y
 
 publishmajor:
 	bash bin/publishmajor.sh
