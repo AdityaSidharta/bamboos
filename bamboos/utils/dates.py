@@ -19,4 +19,9 @@ SUNDAY = 6
 
 
 def get_datetime():
+    """
+    Returns the current Date and Time in the following format : "%Y%m%d-%H%M%S"
+    Returns:
+        (str) : current Date and Time in the following format : "%Y%m%d-%H%M%S"
+    """
     return datetime.datetime.now().strftime("%Y%m%d-%H%M%S")

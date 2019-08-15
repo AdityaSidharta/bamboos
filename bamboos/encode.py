@@ -1,9 +1,23 @@
+from typing import Any, List
+
 import numpy as np
 import pandas as pd
 from category_encoders import OrdinalEncoder, OneHotEncoder, BinaryEncoder
 
 
-def fit_label(input_df, cols, na_value=None):
+def fit_label(input_df: pd.DataFrame, cols: List[str], na_value: Any = None):
+    """
+    Creates the label encoder by fitting it through the given DataFrame
+    NaN values and Special value specified under `na_value` in the DataFrame will be encoded as unseen value.
+    Args:
+        input_df: DataFrame used to fit the encoder
+        cols: List of categorical columns to be encoded
+        na_value: Default null value for DataFrame
+
+    Returns:
+        result_df: encoded input_df DataFrame
+        model : encoder model to be passed to `transform_label` method
+    """
     df = input_df.copy()
 
     if na_value is not None:
@@ -25,7 +39,17 @@ def fit_label(input_df, cols, na_value=None):
     return result_df, model
 
 
-def transform_label(input_df, model):
+def transform_label(input_df: pd.DataFrame, model: Any):
+    """
+    Perform Label encoding to the given DataFrame using previously fitted encoder
+    Previously unseen value, NaN values, and Special value specified under `na_value` in the DataFrame
+    will be encoded as unseen value.
+    Args:
+        input_df: DataFrame to be encoded
+        model: Fitted label Encoder Class
+    Returns:
+        result_df: encoded input_df DataFrame
+    """
     df = input_df.copy()
 
     encoder = model["encoder"]
@@ -45,7 +69,19 @@ def transform_label(input_df, model):
     return result_df
 
 
-def fit_onehot(input_df, cols, na_value=None):
+def fit_onehot(input_df: pd.DataFrame, cols: List[str], na_value: Any = None):
+    """
+    Creates the One-hot encoder by fitting it through the given DataFrame
+    NaN values and Special value specified under `na_value` in the DataFrame will be encoded as unseen value.
+    Args:
+        input_df: DataFrame used to fit the encoder
+        cols: List of categorical columns to be encoded
+        na_value: Default null value for DataFrame
+
+    Returns:
+        result_df: encoded input_df DataFrame
+        model : encoder model to be passed to `transform_onehot` method
+    """
     df = input_df.copy()
 
     if na_value is not None:
@@ -72,7 +108,17 @@ def fit_onehot(input_df, cols, na_value=None):
     return result_df, model
 
 
-def transform_onehot(input_df, model):
+def transform_onehot(input_df: pd.DataFrame, model: Any):
+    """
+    Perform One-hot encoding to the given DataFrame using previously fitted encoder
+    Previously unseen value, NaN values, and Special value specified under `na_value` in the DataFrame
+    will be encoded as unseen value.
+    Args:
+        input_df: DataFrame to be encoded
+        model: Fitted One-hot Encoder Class
+    Returns:
+        result_df: encoded input_df DataFrame
+    """
     df = input_df.copy()
 
     encoder = model["encoder"]
@@ -93,7 +139,19 @@ def transform_onehot(input_df, model):
     return result_df
 
 
-def fit_binary(input_df, cols, na_value=None):
+def fit_binary(input_df: pd.DataFrame, cols: List[str], na_value: Any = None):
+    """
+    Creates the binary encoder by fitting it through the given DataFrame.
+    NaN values and Special value specified under `na_value` in the DataFrame will be encoded as unseen value.
+    Args:
+        input_df: DataFrame used to fit the encoder
+        cols: List of categorical columns to be encoded
+        na_value: Default null value for DataFrame
+
+    Returns:
+        result_df: encoded input_df DataFrame
+        model : encoder model to be passed to `transform_binary` method
+    """
     df = input_df.copy()
 
     if na_value is not None:
@@ -111,7 +169,17 @@ def fit_binary(input_df, cols, na_value=None):
     return result_df, model
 
 
-def transform_binary(input_df, model):
+def transform_binary(input_df: pd.DataFrame, model: Any):
+    """
+    Perform Binary encoding to the given DataFrame using previously fitted encoder.
+    Previously unseen value, NaN values, and Special value specified under `na_value` in the DataFrame
+    will be encoded as unseen value.
+    Args:
+        input_df: DataFrame to be encoded
+        model: Fitted Binary Encoder Class
+    Returns:
+        result_df: encoded input_df DataFrame
+    """
     df = input_df.copy()
 
     encoder = model["encoder"]
@@ -127,7 +195,31 @@ def transform_binary(input_df, model):
     return result_df
 
 
-def fit_categorical(input_df, cols, na_value=None, max_onehot=10, max_binary=1000):
+def fit_categorical(
+    input_df: pd.DataFrame,
+    cols: List[str],
+    na_value: Any = None,
+    max_onehot: int = 10,
+    max_binary: int = 1000,
+):
+    """
+    Perform Automated Encoding for all categorical columns.
+    All columns with low cardinality ( less than binary_limit unique values ) will be encoded using Label encoder
+    All columns with high cardinality ( More than binary_limit unique values ) will be encoded using
+    Categorical encoder
+    Args:
+        input_df: DataFrame to be encoded
+        cols: List of categorical columns to be encoded
+        na_value: Default na value for DataFrame
+        max_binary: number of cardinality. If the column has smaller cardinality than max_binary and bigger t
+        han max_onehot, will be encoded using LabelEncoder. Else, will be encoded using BinaryEncoder.
+        max_onehot: number of cardinality. This value must be smaller than min_binary.
+        If the column has smaller cardinality to min_onehot, the column will be
+         encoded using OneHotEncoder.
+    Returns:
+        result_df: encoded input_df DataFrame
+        model : encoder model to be passed to `transform_categorical` method
+    """
     df = input_df.copy()
 
     if na_value is not None:
@@ -167,7 +259,18 @@ def fit_categorical(input_df, cols, na_value=None, max_onehot=10, max_binary=100
     return result_df, model
 
 
-def transform_categorical(input_df, model):
+def transform_categorical(input_df: pd.DataFrame, model: Any):
+    """
+    Perform Categorical encoding to the given DataFrame using previously fitted encoder
+    All columns with low cardinality ( less than binary_limit unique values ) will be encoded using Label encoder
+    All columns with high cardinality ( More than binary_limit unique values ) will be encoded using
+    Categorical encoder
+    Args:
+        input_df: DataFrame to be encoded
+        model: Fitted Categorical Encoder Class
+    Returns:
+        result_df: encoded input_df DataFrame
+    """
     df = input_df.copy()
 
     onehot_model = model["onehot_model"]

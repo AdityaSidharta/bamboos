@@ -18,7 +18,7 @@ def lgb_mape(preds: np.ndarray, lgb_train: Dataset) -> Tuple[str, float, bool]:
     """
     labels = lgb_train.get_label()
     mask = labels != 0
-    return 'mape', (np.fabs(labels - preds) / labels)[mask].mean(), False
+    return "mape", (np.fabs(labels - preds) / labels)[mask].mean(), False
 
 
 def lgb_mape_exp(preds: np.ndarray, lgb_train: Dataset) -> Tuple[str, float, bool]:
@@ -35,7 +35,7 @@ def lgb_mape_exp(preds: np.ndarray, lgb_train: Dataset) -> Tuple[str, float, boo
     """
     labels = lgb_train.get_label()
     mask = labels != 0
-    return 'mape_exp', (np.fabs(labels - np.exp(preds)) / labels)[mask].mean(), False
+    return "mape_exp", (np.fabs(labels - np.exp(preds)) / labels)[mask].mean(), False
 
 
 def lgb_pr_auc(preds: np.ndarray, lgb_train: Dataset) -> Tuple[str, float, bool]:
@@ -51,4 +51,4 @@ def lgb_pr_auc(preds: np.ndarray, lgb_train: Dataset) -> Tuple[str, float, bool]
     """
     labels = lgb_train.get_label()
     precision, recall, _ = precision_recall_curve(labels, preds)
-    return 'pr_auc', auc(recall, precision), True
+    return "pr_auc", auc(recall, precision), True

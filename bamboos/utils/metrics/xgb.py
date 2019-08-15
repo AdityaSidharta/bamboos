@@ -1,8 +1,8 @@
 from typing import Tuple
 
 import numpy as np
-from xgboost import DMatrix
 from sklearn.metrics import precision_recall_curve, auc
+from xgboost import DMatrix
 
 
 def xgb_mape(preds: np.ndarray, dtrain: DMatrix) -> Tuple[str, float]:
@@ -18,7 +18,7 @@ def xgb_mape(preds: np.ndarray, dtrain: DMatrix) -> Tuple[str, float]:
     """
     labels = dtrain.get_label()
     mask = labels != 0
-    return 'mape', (np.fabs(labels - preds) / labels)[mask].mean()
+    return "mape", (np.fabs(labels - preds) / labels)[mask].mean()
 
 
 def xgb_mape_exp(preds: np.ndarray, dtrain: DMatrix) -> Tuple[str, float]:
@@ -35,7 +35,7 @@ def xgb_mape_exp(preds: np.ndarray, dtrain: DMatrix) -> Tuple[str, float]:
     """
     labels = dtrain.get_label()
     mask = labels != 0
-    return 'mape_exp', (np.fabs(labels - np.exp(preds)) / labels)[mask].mean()
+    return "mape_exp", (np.fabs(labels - np.exp(preds)) / labels)[mask].mean()
 
 
 def xgb_pr_auc(preds: np.ndarray, lgb_train: DMatrix) -> Tuple[str, float]:
@@ -52,7 +52,7 @@ def xgb_pr_auc(preds: np.ndarray, lgb_train: DMatrix) -> Tuple[str, float]:
     labels = lgb_train.get_label()
     precision, recall, _ = precision_recall_curve(labels, preds)
     result = auc(recall, precision)
-    return 'pr_auc', result
+    return "pr_auc", result
 
 
 def xgb_huber_approx(preds: np.ndarray, dtrain: DMatrix) -> Tuple[float, float]:
