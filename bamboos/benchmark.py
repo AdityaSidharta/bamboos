@@ -3,14 +3,27 @@ from collections import OrderedDict
 from typing import Any, List, Optional
 
 import pandas as pd
-from sklearn.metrics import accuracy_score, explained_variance_score, f1_score, mean_absolute_error, \
-    mean_squared_error, precision_score, r2_score, recall_score, roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    explained_variance_score,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    precision_score,
+    r2_score,
+    recall_score,
+    roc_auc_score,
+)
 from sklearn.model_selection import KFold
 
-from bamboos.utils.metrics.sklearn import pr_auc_score
-from bamboos.utils.model.model_zoo import binary_model_dict, multiclass_model_dict, regression_model_dict
-from bamboos.utils.vis import barplot, boxplot
 from bamboos.utils.cross_validation import cv_split
+from bamboos.utils.metrics.sklearn import pr_auc_score
+from bamboos.utils.model.model_zoo import (
+    binary_model_dict,
+    multiclass_model_dict,
+    regression_model_dict,
+)
+from bamboos.utils.vis import barplot, boxplot
 
 
 def get_default_metric(model_type: str):
@@ -22,34 +35,49 @@ def get_default_metric(model_type: str):
     Returns:
         Default metrics, metrics_proba, metrics_kwargs, sort_by, ascending
     """
-    if model_type == 'regression':
-        metrics = [mean_absolute_error, mean_squared_error, r2_score, explained_variance_score]
+    if model_type == "regression":
+        metrics = [
+            mean_absolute_error,
+            mean_squared_error,
+            r2_score,
+            explained_variance_score,
+        ]
         metrics_proba = []  # type: List[Any]
         metrics_kwargs = {}  # type: dict
         sort_by = mean_absolute_error.__name__
         ascending = True
-    elif model_type == 'binary':
+    elif model_type == "binary":
         metrics = [accuracy_score, recall_score, precision_score, f1_score]
         metrics_proba = [roc_auc_score, pr_auc_score]
         metrics_kwargs = {}
         sort_by = f1_score.__name__
         ascending = False
-    elif model_type == 'multiclass':
+    elif model_type == "multiclass":
         metrics = [accuracy_score, recall_score, precision_score, f1_score]
         metrics_proba = [roc_auc_score]
-        metrics_kwargs = {'recall_score': {'average': 'macro'},
-                          'precision_score': {'average': 'macro'},
-                          'f1_score': {'average': 'macro'},
-                          'roc_auc_score': {'average': 'macro'}}
+        metrics_kwargs = {
+            "recall_score": {"average": "macro"},
+            "precision_score": {"average": "macro"},
+            "f1_score": {"average": "macro"},
+            "roc_auc_score": {"average": "macro"},
+        }
         sort_by = f1_score.__name__
         ascending = False
     else:
-        raise ValueError('model_type not in [regression, binary, multiclass]')
+        raise ValueError("model_type not in [regression, binary, multiclass]")
     return metrics, metrics_proba, metrics_kwargs, sort_by, ascending
 
 
-def bm(X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.DataFrame, y_val: pd.Series,
-       metrics: List[Any], metrics_proba: List[Any], metrics_kwargs: dict, model_dict: dict):
+def bm(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_val: pd.DataFrame,
+    y_val: pd.Series,
+    metrics: List[Any],
+    metrics_proba: List[Any],
+    metrics_kwargs: dict,
+    model_dict: dict,
+):
     """
     Perform benchmark prediction on the given validation dataset for all model supplied under model_dictionary
     Args:
@@ -72,30 +100,40 @@ def bm(X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.DataFrame, y_val: pd
     for model_name, model in model_dict.items():
         model.fit(X_train, y_train)
         result_dict: dict = OrderedDict()
-        result_dict['model_name'] = model_name
+        result_dict["model_name"] = model_name
         metrics = [] if metrics is None else metrics
         metrics_proba = [] if metrics_proba is None else metrics_proba
         metrics_kwargs = {} if metrics_kwargs is None else metrics_kwargs
         for metric in metrics:
             if metric.__name__ in metrics_kwargs.keys():
-                result_dict[metric.__name__] = model.evaluate(X_val, y_val, metric,
-                                                              **metrics_kwargs[metric.__name__])
+                result_dict[metric.__name__] = model.evaluate(
+                    X_val, y_val, metric, **metrics_kwargs[metric.__name__]
+                )
             else:
                 result_dict[metric.__name__] = model.evaluate(X_val, y_val, metric)
         for metric_proba in metrics_proba:
             if metric_proba.__name__ in metrics_kwargs.keys():
-                result_dict[metric_proba.__name__] = model.evaluate_proba(X_val, y_val,
-                                                                          metric_proba,
-                                                                          **metrics_kwargs[metric_proba.__name__])
+                result_dict[metric_proba.__name__] = model.evaluate_proba(
+                    X_val, y_val, metric_proba, **metrics_kwargs[metric_proba.__name__]
+                )
             else:
-                result_dict[metric_proba.__name__] = model.evaluate_proba(X_val, y_val, metric_proba)
+                result_dict[metric_proba.__name__] = model.evaluate_proba(
+                    X_val, y_val, metric_proba
+                )
         result_row.append(result_dict)
     result_df = pd.DataFrame(result_row)
     return result_df
 
 
-def bm_cv(X_train: pd.DataFrame, y_train: pd.Series, cv: int,
-          metrics: List[Any], metrics_proba: List[Any], metric_kwargs: dict, model_dict: dict):
+def bm_cv(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    cv: int,
+    metrics: List[Any],
+    metrics_proba: List[Any],
+    metric_kwargs: dict,
+    model_dict: dict,
+):
     """
     Perform cross validation benchmark with all models specified under model_dictionary, using the metrics defined.
     Args:
@@ -118,13 +156,26 @@ def bm_cv(X_train: pd.DataFrame, y_train: pd.Series, cv: int,
     kf = KFold(n_splits=cv, shuffle=True, random_state=42)
     for cv_idx, (dev_idx, val_idx) in enumerate(kf.split(X_train)):
         X_dev, X_val, y_dev, y_val = cv_split(X_train, y_train, dev_idx, val_idx)
-        df = bm(X_dev, y_dev, X_val, y_val, metrics, metrics_proba, metric_kwargs, model_dict)
-        df['cv_idx'] = cv_idx
+        df = bm(
+            X_dev,
+            y_dev,
+            X_val,
+            y_val,
+            metrics,
+            metrics_proba,
+            metric_kwargs,
+            model_dict,
+        )
+        df["cv_idx"] = cv_idx
         result_cv_df = pd.concat([result_cv_df, df])
     return result_cv_df
 
 
-def aggregate(result_cv_df: pd.DataFrame, metrics: Optional[List[Any]], metrics_proba: Optional[List[Any]]):
+def aggregate(
+    result_cv_df: pd.DataFrame,
+    metrics: Optional[List[Any]],
+    metrics_proba: Optional[List[Any]],
+):
     """
     Perform Aggregation of values from different cross_validation across all metrics, grouped by the model_name
     Args:
@@ -139,8 +190,12 @@ def aggregate(result_cv_df: pd.DataFrame, metrics: Optional[List[Any]], metrics_
     """
     metrics = [] if metrics is None else metrics
     metrics_proba = [] if metrics_proba is None else metrics_proba
-    metrics_cols = [metric.__name__ for metric in metrics] + [metric_proba.__name__ for metric_proba in metrics_proba]
-    aggregate_df = result_cv_df.groupby('model_name')[metrics_cols].agg('mean').reset_index()
+    metrics_cols = [metric.__name__ for metric in metrics] + [
+        metric_proba.__name__ for metric_proba in metrics_proba
+    ]
+    aggregate_df = (
+        result_cv_df.groupby("model_name")[metrics_cols].agg("mean").reset_index()
+    )
     return aggregate_df
 
 
@@ -160,8 +215,13 @@ def sort(result_df: pd.DataFrame, sort_by: Optional[str], ascending: bool):
     return result_df
 
 
-def plot_save(result_df: pd.DataFrame, metrics: Optional[list], metrics_proba: Optional[list],
-              plot: bool, folder_path: Optional[str]):
+def plot_save(
+    result_df: pd.DataFrame,
+    metrics: Optional[list],
+    metrics_proba: Optional[list],
+    plot: bool,
+    folder_path: Optional[str],
+):
     """
     Plot and save the plot of the DataFrame, if needed
     Args:
@@ -178,14 +238,20 @@ def plot_save(result_df: pd.DataFrame, metrics: Optional[list], metrics_proba: O
     """
     metrics = [] if metrics is None else metrics
     metrics_proba = [] if metrics_proba is None else metrics_proba
-    metrics_cols = [metric.__name__ for metric in metrics] + \
-                   [metric_proba.__name__ for metric_proba in metrics_proba]
+    metrics_cols = [metric.__name__ for metric in metrics] + [
+        metric_proba.__name__ for metric_proba in metrics_proba
+    ]
     if plot:
         for metric in metrics_cols:
-            barplot(result_df, metric, 'model_name')
+            barplot(result_df, metric, "model_name")
     if folder_path:
         for metric in metrics_cols:
-            barplot(result_df, metric, 'model_name', filename=os.path.join(folder_path, '{}_plot.png'.format(metric)))
+            barplot(
+                result_df,
+                metric,
+                "model_name",
+                filename=os.path.join(folder_path, "{}_plot.png".format(metric)),
+            )
 
 
 def plot_save_cv(result_df: pd.DataFrame, metrics, metrics_proba, plot, folder_path):
@@ -203,22 +269,34 @@ def plot_save_cv(result_df: pd.DataFrame, metrics, metrics_proba, plot, folder_p
     Returns:
 
     """
-    metrics_cols = [metric.__name__ for metric in metrics] + \
-                   [metric_proba.__name__ for metric_proba in metrics_proba]
+    metrics_cols = [metric.__name__ for metric in metrics] + [
+        metric_proba.__name__ for metric_proba in metrics_proba
+    ]
     if plot:
         for metric in metrics_cols:
-            boxplot(result_df, metric, 'model_name')
+            boxplot(result_df, metric, "model_name")
     if folder_path:
         for metric in metrics_cols:
-            boxplot(result_df, metric, 'model_name', filename=os.path.join(folder_path,
-                                                                           '{}_cv_plot.png'.format(metric)))
+            boxplot(
+                result_df,
+                metric,
+                "model_name",
+                filename=os.path.join(folder_path, "{}_cv_plot.png".format(metric)),
+            )
 
 
-def regression(X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.DataFrame, y_val: pd.Series,
-               metrics: List[Any] = None,
-               metrics_kwargs: dict = None,
-               sort_by: str = None, is_smaller_better: bool = True,
-               plot: bool = True, folder_path: str = None):
+def regression(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_val: pd.DataFrame,
+    y_val: pd.Series,
+    metrics: List[Any] = None,
+    metrics_kwargs: dict = None,
+    sort_by: str = None,
+    is_smaller_better: bool = True,
+    plot: bool = True,
+    folder_path: str = None,
+):
     """
     Perform benchmark for regression problem
     Args:
@@ -244,19 +322,37 @@ def regression(X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.DataFrame, y
     """
     if metrics is None:
         # metrics_proba will be empty for regression
-        metrics, _, metrics_kwargs, sort_by, is_smaller_better = get_default_metric('regression')
-    result_df = bm(X_train, y_train, X_val, y_val, metrics, [], metrics_kwargs,  # type: ignore
-                   regression_model_dict())
+        metrics, _, metrics_kwargs, sort_by, is_smaller_better = get_default_metric(
+            "regression"
+        )
+    result_df = bm(
+        X_train,
+        y_train,
+        X_val,
+        y_val,
+        metrics,
+        [],
+        metrics_kwargs,  # type: ignore
+        regression_model_dict(),
+    )
     result_df = sort(result_df, sort_by, is_smaller_better)
     plot_save(result_df, metrics, [], plot, folder_path)
     return result_df
 
 
-def binary(X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.DataFrame, y_val: pd.Series,
-           metrics: List[Any] = None, metrics_proba: List[Any] = None,
-           metrics_kwargs: Optional[dict] = None,
-           sort_by: str = None, is_smaller_better: bool = True,
-           plot: bool = True, folder_path: str = None):
+def binary(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_val: pd.DataFrame,
+    y_val: pd.Series,
+    metrics: List[Any] = None,
+    metrics_proba: List[Any] = None,
+    metrics_kwargs: Optional[dict] = None,
+    sort_by: str = None,
+    is_smaller_better: bool = True,
+    plot: bool = True,
+    folder_path: str = None,
+):
     """
     Perform benchmark for classification problem
     Args:
@@ -284,19 +380,38 @@ def binary(X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.DataFrame, y_val
         >>> binary(X_train, y_train, X_val, y_val)
     """
     if metrics is None:
-        metrics, metrics_proba, metrics_kwargs, sort_by, is_smaller_better = get_default_metric('binary')
-    result_df = bm(X_train, y_train, X_val, y_val, metrics, metrics_proba, metrics_kwargs,  # type: ignore
-                   binary_model_dict())
+        metrics, metrics_proba, metrics_kwargs, sort_by, is_smaller_better = get_default_metric(
+            "binary"
+        )
+    result_df = bm(
+        X_train,
+        y_train,
+        X_val,
+        y_val,
+        metrics,
+        metrics_proba,
+        metrics_kwargs,  # type: ignore
+        binary_model_dict(),
+    )
     result_df = sort(result_df, sort_by, is_smaller_better)
     plot_save(result_df, metrics, metrics_proba, plot, folder_path)
     return result_df
 
 
-def multiclass(X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.DataFrame, y_val: pd.Series, num_class: int,
-               metrics: Optional[list] = None, metrics_proba: Optional[list] = None,
-               metrics_kwargs: Optional[dict] = None,
-               sort_by: str = None, is_smaller_better: bool = True,
-               plot: bool = True, folder_path: str = None):
+def multiclass(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_val: pd.DataFrame,
+    y_val: pd.Series,
+    num_class: int,
+    metrics: Optional[list] = None,
+    metrics_proba: Optional[list] = None,
+    metrics_kwargs: Optional[dict] = None,
+    sort_by: str = None,
+    is_smaller_better: bool = True,
+    plot: bool = True,
+    folder_path: str = None,
+):
     """
     Perform benchmark for multi-classification problem
     Args:
@@ -325,19 +440,35 @@ def multiclass(X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.DataFrame, y
         >>> multiclass(X_train, y_train, X_val, y_val, num_class = 10)
     """
     if metrics is None:
-        metrics, metrics_proba, metrics_kwargs, sort_by, is_smaller_better = get_default_metric('multiclass')
-    result_df = bm(X_train, y_train, X_val, y_val, metrics, metrics_proba, metrics_kwargs,  # type: ignore
-                   multiclass_model_dict(num_class=num_class))
+        metrics, metrics_proba, metrics_kwargs, sort_by, is_smaller_better = get_default_metric(
+            "multiclass"
+        )
+    result_df = bm(
+        X_train,
+        y_train,
+        X_val,
+        y_val,
+        metrics,
+        metrics_proba,
+        metrics_kwargs,  # type: ignore
+        multiclass_model_dict(num_class=num_class),
+    )
     result_df = sort(result_df, sort_by, is_smaller_better)
     plot_save(result_df, metrics, metrics_proba, plot, folder_path)
     return result_df
 
 
-def regression_cv(X_train: pd.DataFrame, y_train: pd.Series, cv: int = 5,
-                  metrics: List[Any] = None,
-                  metrics_kwargs: dict = None,
-                  sort_by: str = None, is_smaller_better: bool = True,
-                  plot: bool = True, folder_path: str = None):
+def regression_cv(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    cv: int = 5,
+    metrics: List[Any] = None,
+    metrics_kwargs: dict = None,
+    sort_by: str = None,
+    is_smaller_better: bool = True,
+    plot: bool = True,
+    folder_path: str = None,
+):
     """
     Perform cross-validation benchmark for regression problem
     Args:
@@ -361,9 +492,18 @@ def regression_cv(X_train: pd.DataFrame, y_train: pd.Series, cv: int = 5,
         >>> regression_cv(X_full, Y_full)
     """
     if metrics is None:
-        metrics, metrics_proba, metrics_kwargs, sort_by, is_smaller_better = get_default_metric('regression')
-    result_df = bm_cv(X_train, y_train, cv, metrics, metrics_proba, metrics_kwargs,  # type: ignore
-                      regression_model_dict())
+        metrics, metrics_proba, metrics_kwargs, sort_by, is_smaller_better = get_default_metric(
+            "regression"
+        )
+    result_df = bm_cv(
+        X_train,
+        y_train,
+        cv,
+        metrics,
+        metrics_proba,
+        metrics_kwargs,  # type: ignore
+        regression_model_dict(),
+    )
     result_df = sort(result_df, sort_by, is_smaller_better)
     plot_save_cv(result_df, metrics, metrics_proba, plot, folder_path)
     aggregate_df = aggregate(result_df, metrics, metrics_proba)
@@ -371,11 +511,18 @@ def regression_cv(X_train: pd.DataFrame, y_train: pd.Series, cv: int = 5,
     return aggregate_df
 
 
-def binary_cv(X_train: pd.DataFrame, y_train: pd.Series, cv: int = 5,
-              metrics: List[Any] = None, metrics_proba: List[Any] = None,
-              metrics_kwargs: dict = None,
-              sort_by: str = None, is_smaller_better: bool = True,
-              plot: bool = True, folder_path: str = None):
+def binary_cv(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    cv: int = 5,
+    metrics: List[Any] = None,
+    metrics_proba: List[Any] = None,
+    metrics_kwargs: dict = None,
+    sort_by: str = None,
+    is_smaller_better: bool = True,
+    plot: bool = True,
+    folder_path: str = None,
+):
     """
     Perform cross-validation benchmark for binary problem
     Args:
@@ -401,9 +548,18 @@ def binary_cv(X_train: pd.DataFrame, y_train: pd.Series, cv: int = 5,
         >>> binary_cv(X_full, Y_full)
     """
     if metrics is None:
-        metrics, metrics_proba, metrics_kwargs, sort_by, is_smaller_better = get_default_metric('binary')
-    result_df = bm_cv(X_train, y_train, cv, metrics, metrics_proba, metrics_kwargs,  # type: ignore
-                      binary_model_dict())
+        metrics, metrics_proba, metrics_kwargs, sort_by, is_smaller_better = get_default_metric(
+            "binary"
+        )
+    result_df = bm_cv(
+        X_train,
+        y_train,
+        cv,
+        metrics,
+        metrics_proba,
+        metrics_kwargs,  # type: ignore
+        binary_model_dict(),
+    )
     result_df = sort(result_df, sort_by, is_smaller_better)
     plot_save_cv(result_df, metrics, metrics_proba, plot, folder_path)
     aggregate_df = aggregate(result_df, metrics, metrics_proba)
@@ -411,11 +567,19 @@ def binary_cv(X_train: pd.DataFrame, y_train: pd.Series, cv: int = 5,
     return aggregate_df
 
 
-def multiclass_cv(X_train: pd.DataFrame, y_train: pd.Series, num_class: int, cv: int = 5,
-                  metrics: List[Any] = None, metrics_proba: List[Any] = None,
-                  metrics_kwargs: dict = None,
-                  sort_by: str = None, is_smaller_better: bool = True,
-                  plot: bool = True, folder_path: str = None):
+def multiclass_cv(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    num_class: int,
+    cv: int = 5,
+    metrics: List[Any] = None,
+    metrics_proba: List[Any] = None,
+    metrics_kwargs: dict = None,
+    sort_by: str = None,
+    is_smaller_better: bool = True,
+    plot: bool = True,
+    folder_path: str = None,
+):
     """
     Perform cross-validation benchmark for multiclass problem
     Args:
@@ -442,11 +606,140 @@ def multiclass_cv(X_train: pd.DataFrame, y_train: pd.Series, num_class: int, cv:
         >>> multiclass_cv(X_full, Y_full, num_class=10)
     """
     if metrics is None:
-        metrics, metrics_proba, metrics_kwargs, sort_by, is_smaller_better = get_default_metric('multiclass')
-    result_df = bm_cv(X_train, y_train, cv, metrics, metrics_proba, metrics_kwargs,  # type: ignore
-                      multiclass_model_dict(num_class=num_class))
+        metrics, metrics_proba, metrics_kwargs, sort_by, is_smaller_better = get_default_metric(
+            "multiclass"
+        )
+    result_df = bm_cv(
+        X_train,
+        y_train,
+        cv,
+        metrics,
+        metrics_proba,
+        metrics_kwargs,  # type: ignore
+        multiclass_model_dict(num_class=num_class),
+    )
     result_df = sort(result_df, sort_by, is_smaller_better)
     plot_save_cv(result_df, metrics, metrics_proba, plot, folder_path)
     aggregate_df = aggregate(result_df, metrics, metrics_proba)
     aggregate_df = sort(aggregate_df, sort_by, is_smaller_better)
     return aggregate_df
+
+
+def benchmark(
+    kind: str,
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_val: pd.DataFrame,
+    y_val: pd.Series,
+    num_class: int,
+    metrics: Optional[list] = None,
+    metrics_proba: Optional[list] = None,
+    metrics_kwargs: Optional[dict] = None,
+    sort_by: str = None,
+    is_smaller_better: bool = True,
+    plot: bool = True,
+    folder_path: str = None,
+):
+    if kind in ["reg", "regression"]:
+        result_df = regression(
+            X_train,
+            y_train,
+            X_val,
+            y_val,
+            metrics,
+            metrics_kwargs,
+            sort_by,
+            is_smaller_better,
+            plot,
+            folder_path,
+        )
+    elif kind in ["bin", "binary"]:
+        result_df = binary(
+            X_train,
+            y_train,
+            X_val,
+            y_val,
+            metrics,
+            metrics_proba,
+            metrics_kwargs,
+            sort_by,
+            is_smaller_better,
+            plot,
+            folder_path,
+        )
+    elif kind in ["multi", "multiclass"]:
+        result_df = multiclass(
+            X_train,
+            y_train,
+            X_val,
+            y_val,
+            num_class,
+            metrics,
+            metrics_proba,
+            metrics_kwargs,
+            sort_by,
+            is_smaller_better,
+            plot,
+            folder_path,
+        )
+    else:
+        raise ValueError(
+            "kind must be in the following : ['regression', 'binary', 'multiclass']"
+        )
+    return result_df
+
+
+def benchmark_cv(
+    kind: str,
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    num_class: int,
+    cv: int = 5,
+    metrics: List[Any] = None,
+    metrics_proba: List[Any] = None,
+    metrics_kwargs: dict = None,
+    sort_by: str = None,
+    is_smaller_better: bool = True,
+    plot: bool = True,
+    folder_path: str = None,
+):
+    if kind in ["reg", "regression"]:
+        result_df = regression_cv(
+            X_train,
+            y_train,
+            cv,
+            metrics,
+            metrics_kwargs,
+            sort_by,
+            is_smaller_better,
+            plot,
+            folder_path,
+        )
+    elif kind in ["bin", "binary"]:
+        result_df = binary_cv(
+            X_train,
+            y_train,
+            cv,
+            metrics,
+            metrics_proba,
+            metrics_kwargs,
+            sort_by,
+            is_smaller_better,
+            plot,
+            folder_path,
+        )
+    elif kind in ["multi", "multiclass"]:
+        result_df = multiclass_cv(
+            X_train,
+            y_train,
+            num_class,
+            cv,
+            metrics,
+            metrics_proba,
+            metrics_kwargs,
+            sort_by,
+            is_smaller_better,
+            plot,
+            folder_path,
+        )
+    return result_df
