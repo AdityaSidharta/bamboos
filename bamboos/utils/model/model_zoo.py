@@ -172,9 +172,6 @@ def multiclass_model_dict(num_class: int) -> dict:
             solver="lbfgs",
             max_iter=1000,
         ),
-        "RidgeClassifier": createModel(
-            "RidgeClassifier", "multiclass", num_class=num_class
-        ),
         "GaussianNB": createModel("GaussianNB", "multiclass", num_class=num_class),
         "KNeighborsClassifier": createModel(
             "KNeighborsClassifier", "multiclass", num_class=num_class

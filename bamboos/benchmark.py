@@ -631,7 +631,7 @@ def benchmark(
     y_train: pd.Series,
     X_val: pd.DataFrame,
     y_val: pd.Series,
-    num_class: int,
+    num_class: Optional[int] = None,
     metrics: Optional[list] = None,
     metrics_proba: Optional[list] = None,
     metrics_kwargs: Optional[dict] = None,
@@ -641,6 +641,8 @@ def benchmark(
     folder_path: str = None,
 ):
     if kind in ["reg", "regression"]:
+        assert num_class is None
+        assert metrics_proba is None
         result_df = regression(
             X_train,
             y_train,
@@ -654,6 +656,7 @@ def benchmark(
             folder_path,
         )
     elif kind in ["bin", "binary"]:
+        assert num_class is None
         result_df = binary(
             X_train,
             y_train,
@@ -668,6 +671,7 @@ def benchmark(
             folder_path,
         )
     elif kind in ["multi", "multiclass"]:
+        assert num_class is not None
         result_df = multiclass(
             X_train,
             y_train,
@@ -693,7 +697,7 @@ def benchmark_cv(
     kind: str,
     X_train: pd.DataFrame,
     y_train: pd.Series,
-    num_class: int,
+    num_class: int = None,
     cv: int = 5,
     metrics: List[Any] = None,
     metrics_proba: List[Any] = None,
@@ -704,6 +708,8 @@ def benchmark_cv(
     folder_path: str = None,
 ):
     if kind in ["reg", "regression"]:
+        assert num_class is None
+        assert metrics_proba is None
         result_df = regression_cv(
             X_train,
             y_train,
@@ -716,6 +722,7 @@ def benchmark_cv(
             folder_path,
         )
     elif kind in ["bin", "binary"]:
+        assert num_class is None
         result_df = binary_cv(
             X_train,
             y_train,
@@ -729,6 +736,7 @@ def benchmark_cv(
             folder_path,
         )
     elif kind in ["multi", "multiclass"]:
+        assert num_class is not None
         result_df = multiclass_cv(
             X_train,
             y_train,
