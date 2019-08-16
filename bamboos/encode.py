@@ -24,7 +24,7 @@ def fit_label(input_df: pd.DataFrame, cols: List[str], na_value: Any = None):
         for col in cols:
             df[col] = df[col].replace({na_value: np.nan})
 
-    encoder = OrdinalEncoder(cols)
+    encoder = OrdinalEncoder(cols=cols)
     encoder = encoder.fit(df)
     for idx in range(len(encoder.mapping)):
         encoder.mapping[idx]["mapping"].loc[np.nan] = -2
@@ -222,10 +222,6 @@ def fit_categorical(
     """
     df = input_df.copy()
 
-    if na_value is not None:
-        for col in cols:
-            df[col] = df[col].replace({na_value: np.nan})
-
     onehot_cols = []
     label_cols = []
     binary_cols = []
@@ -236,9 +232,9 @@ def fit_categorical(
         if cardinality < max_onehot:
             onehot_cols.append(col)
         elif cardinality < max_binary:
-            label_cols.append(col)
-        else:
             binary_cols.append(col)
+        else:
+            label_cols.append(col)
 
     df, onehot_model = fit_onehot(df, onehot_cols, na_value)
     df, label_model = fit_label(df, label_cols, na_value)
@@ -276,12 +272,6 @@ def transform_categorical(input_df: pd.DataFrame, model: Any):
     onehot_model = model["onehot_model"]
     label_model = model["label_model"]
     binary_model = model["binary_model"]
-    cols = model["cols"]
-    na_value = model["na_value"]
-
-    if na_value is not None:
-        for col in cols:
-            df[col] = df[col].replace({na_value: np.nan})
 
     df = transform_onehot(df, onehot_model)
     df = transform_label(df, label_model)
